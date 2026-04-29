@@ -9,7 +9,7 @@
     <groupId>com.bikebooking</groupId>
     <artifactId>bike-booking-app</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     
     <name>Bike Booking Application - India</name>
     <description>A complete bike booking system for Indian users with GST calculations</description>
