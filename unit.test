@@ -1,0 +1,59 @@
+package com.bikebooking.service;
+
+import com.bikebooking.exception.BookingException;
+import com.bikebooking.model.*;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class BookingServiceTest {
+    
+    private BikeService bikeService;
+    private UserService userService;
+    private BookingService bookingService;
+    private User testUser;
+    
+    @BeforeEach
+    public void setUp() throws BookingException {
+        bikeService = new BikeService();
+        userService = new UserService();
+        bookingService = new BookingService();
+        
+        bookingService.setBikeService(bikeService);
+        bookingService.setUserService(userService);
+        
+        // Add test bike
+        bikeService.addBike(new Bike("TEST001", "Test", "Bike", 100.0, "Petrol", true, "Mumbai"));
+        
+        // Register test user
+        testUser = userService.registerUser("Test User", "test@example.com", "9876543210", "password");
+    }
+    
+    @Test
+    public void testCreateBooking() throws BookingException {
+        Booking booking = bookingService.createBooking("TEST001", testUser.getUserId(), 2, "Mumbai");
+        
+        assertNotNull(booking);
+        assertEquals(2, booking.getHours());
+        assertEquals(236.0, booking.getTotalAmount()); // 200 + 36 GST
+        assertEquals("ACTIVE", booking.getStatus());
+    }
+    
+    @Test
+    public void testInvalidHours() {
+        assertThrows(BookingException.class, () -> {
+            bookingService.createBooking("TEST001", testUser.getUserId(), 0, "Mumbai");
+        });
+        
+        assertThrows(BookingException.class, () -> {
+            bookingService.createBooking("TEST001", testUser.getUserId(), 100, "Mumbai");
+        });
+    }
+    
+    @Test
+    public void testCancelBooking() throws BookingException {
+        Booking booking = bookingService.createBooking("TEST001", testUser.getUserId(), 1, "Mumbai");
+        bookingService.cancelBooking(booking.getBookingId(), testUser.getUserId());
+        
+        assertEquals("CANCELLED", booking.getStatus());
+    }
+}
